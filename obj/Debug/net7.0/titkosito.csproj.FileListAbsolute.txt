@@ -1,0 +1,15 @@
+/home/amy/Programming/work/i4p/titkosito/bin/Debug/net7.0/titkosito
+/home/amy/Programming/work/i4p/titkosito/bin/Debug/net7.0/titkosito.deps.json
+/home/amy/Programming/work/i4p/titkosito/bin/Debug/net7.0/titkosito.runtimeconfig.json
+/home/amy/Programming/work/i4p/titkosito/bin/Debug/net7.0/titkosito.dll
+/home/amy/Programming/work/i4p/titkosito/bin/Debug/net7.0/titkosito.pdb
+/home/amy/Programming/work/i4p/titkosito/obj/Debug/net7.0/titkosito.csproj.AssemblyReference.cache
+/home/amy/Programming/work/i4p/titkosito/obj/Debug/net7.0/titkosito.GeneratedMSBuildEditorConfig.editorconfig
+/home/amy/Programming/work/i4p/titkosito/obj/Debug/net7.0/titkosito.AssemblyInfoInputs.cache
+/home/amy/Programming/work/i4p/titkosito/obj/Debug/net7.0/titkosito.AssemblyInfo.cs
+/home/amy/Programming/work/i4p/titkosito/obj/Debug/net7.0/titkosito.csproj.CoreCompileInputs.cache
+/home/amy/Programming/work/i4p/titkosito/obj/Debug/net7.0/titkosito.dll
+/home/amy/Programming/work/i4p/titkosito/obj/Debug/net7.0/refint/titkosito.dll
+/home/amy/Programming/work/i4p/titkosito/obj/Debug/net7.0/titkosito.pdb
+/home/amy/Programming/work/i4p/titkosito/obj/Debug/net7.0/titkosito.genruntimeconfig.cache
+/home/amy/Programming/work/i4p/titkosito/obj/Debug/net7.0/ref/titkosito.dll
