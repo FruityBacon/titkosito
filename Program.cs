@@ -25,8 +25,8 @@ class Program
             {
                 case "-e" : 
                     // Encryption, avagy titkosítás. Sikeres titkosítás esetén kettő értéket ad vissza üzenetet és kulcsot
-                    (string message,string key) eredmeny = titkosito.Encrypt(args[1],args[2]);
-                    Console.WriteLine("{0}\n{1}",eredmeny.message,eredmeny.key);
+                    string eredmeny = titkosito.Encrypt(args[1],args[2]);
+                    Console.WriteLine("{0}",eredmeny);
                     break;
 
                 case "-d" :

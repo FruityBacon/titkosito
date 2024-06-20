@@ -33,9 +33,14 @@ public class Secret
         {'z',25},
         {' ',26},
     };
-    public (string message, string key) Encrypt(string message, string key)
+    public string Encrypt(string message, string key)
     {
-        return ("asd","asd");
+        if (message.Length > key.Length)
+            throw new Exception("Kulcs nem lehet rövidebb mint az üzenet!"); 
+
+        
+
+        return "blah";
     }
 
     public string Decrypt(string smessage, string key)
@@ -45,7 +50,6 @@ public class Secret
 
     public string Help()
     {
-        
         return 
         "Készítette Kiss Máté\n\nLeírás:\n\t\nMűveletek:\n\t-e [ÜZENET] [KULCS]\n\t-d [TITKOSÍTOTT ÜZENET] [KULCS]\n\t-h\n\nMagyarázat:\n\t-e \tTitkosítás, adja meg a titkosítani kívánt üznetet és hozzá a kulcsot.\n\t-d\tVisszafjetés, adja meg a titkosított üzenetet és utána a kulcsot.\n\t-h\tSegítség előhívása.";
     }
