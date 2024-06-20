@@ -44,7 +44,7 @@ class Program
         }
         catch (System.Exception e)
         {
-            Console.WriteLine("Hiba: {0}",e.Message);
+            Console.WriteLine("Hiba: {0}",e);
             return;
         }
         
