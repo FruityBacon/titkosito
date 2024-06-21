@@ -53,9 +53,23 @@ public class Secret
         return output;
     }
 
-    public string Decrypt(string smessage, string key)
+    public string Decrypt(string message, string key)
     {
-        return "blabla";
+        if (message.Length > key.Length)
+            throw new Exception("Kulcs nem lehet rövidebb mint az üzenet!"); 
+
+        string output = "";
+
+        for (int i = 0; i < message.Length; i++)
+        {
+            int add = charvals.IndexOf(message[i]) - charvals.IndexOf(key[i]);
+            if ( add < 0)
+                add = 27 - Math.Abs(add);
+            
+            output += charvals[add];
+        }
+
+        return output;
     }
 
     public string Help()
