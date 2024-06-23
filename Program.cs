@@ -26,7 +26,9 @@ class Program
                 case "-c" :
                     // Crack, avagy feltörés. Kettő titkosított üzenet megadásával lehetséges lehet vissza kapni az eredeti közös kulcsot.
 
-                    Console.WriteLine(titkosito.Crack(args[1],args[2]));
+                    string[] output = titkosito.Crack(args[1],args[2]);
+                    for (int i = 0; i < output.Length; i++)
+                        Console.WriteLine(output[i]);
                     break;
 
                 case "-e" : 

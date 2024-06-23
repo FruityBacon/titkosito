@@ -99,9 +99,16 @@ public class Secret
         if (msg1.Length > msg2.Length)
             keyLength = msg2.Length;
 
-        for (int i = 0; i < keyLength; i++)
+        int curChar = 0;
+        int curWord = 0;
+        while (keyLength >= curChar && curWord > words.Count) //ha túl lépi a kulcs maximum lehetséges méretét, vagy a szavak lista végére ért akkor kilép.
         {
-            
+            string keySegment = Decrypt(
+                msg1.Substring(curChar,words[curWord].Length),
+                words[curWord]
+            );
+            curWord++;
+
         }
 
         return possibleKeys.ToArray();
