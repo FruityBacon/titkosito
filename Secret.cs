@@ -99,18 +99,93 @@ public class Secret
         if (msg1.Length > msg2.Length)
             keyLength = msg2.Length;
 
-        int curChar = 0;
+        
         int curWord = 0;
-        while (keyLength >= curChar && curWord > words.Count) //ha túl lépi a kulcs maximum lehetséges méretét, vagy a szavak lista végére ért akkor kilép.
+        while (curWord < words.Count) //ha túl lépi a kulcs maximum lehetséges méretét, vagy a szavak lista végére ért akkor kilép.
         {
+            int curChar = 0;
+            
             string keySegment = Decrypt(
                 msg1.Substring(curChar,words[curWord].Length),
                 words[curWord]
             );
+
+            /*
+            string[] pWords = Finder(
+                Decrypt(
+                    msg1.Substring(curChar,words[curWord].Length),
+                    keySegment
+                    )
+                ); //pWords == Possible Words. Minden szó ami tartalmaz legalább egy részét a dekódolt szövegnek.
+            
+            Console.WriteLine("{0} : {1}",keySegment,curWord);
+            if (pWords.Length < 0)
+            {
+                for (int i = 0; i < pWords.Length; i++)
+                {
+                    Console.WriteLine(pWords[i]);
+                }
+                return possibleKeys.ToArray();
+            }
+            else
+                curWord++;
+
+            */
+
+            string[] pWords = Finder(
+                Decrypt(
+                    msg2.Substring(curChar,words[curWord].Length),
+                    keySegment
+                ).Split(' ')[0]
+            );
+
+
+            if (pWords.Length > 0) //ha talált kezdő szavakat akkor folytatja
+            {
+                possibleKeys.Add(keySegment); //kulcs szegmenst hozzá adjuk a listához
+
+                Console.WriteLine("{0}\t:\t{1}",keySegment,curWord+1);
+
+                while (curChar <= keyLength) //fut amíg a lehetséges kulcs méret végére nem ér
+                {
+                    string curKey = possibleKeys[^1];
+                    string lastword = words[curWord];
+                    int lastChar = curChar;
+
+
+                    for(int i = 0; i < pWords.Length; i++)
+                    {
+                        if (pWords[i].Length < lastword.Length)
+                        {
+                            for (int j = 0; j < pWords[i].Split(' ').Length; j++) //minden egyéb létező szót leelenőriz
+                            {
+                                
+                            }
+
+                        }
+
+                        Console.WriteLine(pWords[i]);
+                    }
+
+
+                    if (lastChar == curChar)
+                    {
+                        possibleKeys.RemoveAt(possibleKeys.Count-1);
+                        break;
+                    }
+                    else
+                    {
+                        possibleKeys[^1] = curKey;
+                    }
+                    
+                }
+            }
+            
+            
             curWord++;
 
         }
-
+        Console.WriteLine("Possible Keys - {0}",possibleKeys.Count);
         return possibleKeys.ToArray();
     }
 
@@ -119,7 +194,7 @@ public class Secret
         List<string> output = new();
         foreach(string word in words)
         {
-            if (word.Contains(inword))
+            if (word.StartsWith(inword))
                 output.Add(word);
         }
         return output.ToArray();
