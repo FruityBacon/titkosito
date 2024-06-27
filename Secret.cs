@@ -108,7 +108,7 @@ public class Secret
             string keySegment = Decrypt(
                 msg1.Substring(curChar,words[curWord].Length),
                 words[curWord]
-            );
+            ); //fogja az első mondatot és az épp ellenőrzött kezdő szót és vissza kér belőle egy kulcsot
 
             /*
             string[] pWords = Finder(
@@ -137,7 +137,8 @@ public class Secret
                     msg2.Substring(curChar,words[curWord].Length),
                     keySegment
                 ).Split(' ')[0]
-            );
+            );  //fogja a második mondatot és a korábban kapott kulcsunkat felhasználva vissza kérünk minden lehetséges kezdő szót.
+                //Kell a split a "Finder" függvény működése miatt. 
 
 
             if (pWords.Length > 0) //ha talált kezdő szavakat akkor folytatja
@@ -146,45 +147,50 @@ public class Secret
 
                 Console.WriteLine("{0}\t:\t{1}",keySegment,curWord+1);
 
+                curChar = Decrypt(
+                    msg2.Substring(curChar,words[curWord].Length),
+                    keySegment
+                ).Split(' ')[0].Length+1;
+
                 while (curChar <= keyLength) //fut amíg a lehetséges kulcs méret végére nem ér
                 {
+                    string[] messages = new[]{msg1,msg2};
                     string curKey = possibleKeys[^1];
                     string lastword = words[curWord];
                     int lastChar = curChar;
 
 
-                    for(int i = 0; i < pWords.Length; i++)
+                    for(int i = 0; i < pWords.Length; i++) //minden lehetséges szón végig megy
                     {
-                        if (pWords[i].Length < lastword.Length)
+                        if (pWords[i].Length < lastword.Length) //hogyha hosszabb a lehetséges 
                         {
                             for (int j = 0; j < pWords[i].Split(' ').Length; j++) //minden egyéb létező szót leelenőriz
                             {
                                 
                             }
-
                         }
-
                         Console.WriteLine(pWords[i]);
                     }
 
 
                     if (lastChar == curChar)
                     {
-                        possibleKeys.RemoveAt(possibleKeys.Count-1);
+                        possibleKeys.RemoveAt(possibleKeys.Count-1); //nem történt változás de nem érte el a mondat végét úgyhogy eldobjuk a lehetséges kulcsot és kilépünk
                         break;
                     }
                     else
                     {
-                        possibleKeys[^1] = curKey;
+                        possibleKeys[^1] = curKey; //a legutolsó kulcs
                     }
                     
                 }
             }
             
             
-            curWord++;
+            curWord++; //tovább lép a következő kezdő szóra
 
         }
+
         Console.WriteLine("Possible Keys - {0}",possibleKeys.Count);
         return possibleKeys.ToArray();
     }
