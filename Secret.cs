@@ -38,6 +38,58 @@ public class Secret
 
     private List<string> words = new();
 
+    private string message1 = "";
+    private string message2 = "";
+    private bool curmsg;
+    private string CurrentMessage {
+        get => curmsg? message1 : message2;
+        set {
+            if (curmsg)
+            {
+                message1 = value;
+            }
+            else
+            {
+                message2 = value;
+            }
+        }
+    }
+    private string OppositeMessage {
+        get => !curmsg? message1 : message2;
+        set {
+            if (!curmsg)
+            {
+                message1 = value;
+            }
+            else
+            {
+                message2 = value;
+            }
+        }
+    }
+    private int message1CurrentCharacter = 0;
+    private int message2CurrentCharacter = 0;
+    private int messageGiveCharacter(bool select = true) // Ha igaz akkor vissza adja az aktív charactert, ha hamis akkor az ellenkezőjét
+    {
+       if (select)
+       {
+            return curmsg? message1CurrentCharacter : message2CurrentCharacter;
+       }
+       else
+       {
+            return curmsg? message2CurrentCharacter : message1CurrentCharacter;
+       }
+    }
+    private int maxKeyLength {
+        get => (message1.Length < message2.Length)? message1.Length : message2.Length;
+    }
+    private List<string> PossibleKeys = new();
+    private string LastKey
+    {
+        get => PossibleKeys[^1];
+        set => PossibleKeys[^1] = value;
+    }
+
     public string Encrypt(string message, string key)
     {
         if (message.Length > key.Length)
@@ -96,11 +148,11 @@ public class Secret
         List<string> possibleKeys = new();
         int maxKeyLength = (msg1.Length > msg2.Length)? msg1.Length : msg2.Length;
 
-        int curWord = 0;
-        string[] messages = new[] { msg1, msg2 };
-        int[] messageCharPos = new[] { 0, 0 };
-        int curMsg = 0;
-
+        this.message1 = msg1;
+        this.message2 = msg2;
+        
+        #region ElsőPróba
+        /*
         while (curWord < words.Count) //ha túl lépi a kulcs maximum lehetséges méretét, vagy a szavak lista végére ért akkor kilép.
         {
             int curChar = 0;
@@ -131,7 +183,6 @@ public class Secret
             else
                 curWord++;
 
-            */
 
             string msg2Segment = Decrypt(
                     msg2.Substring(curChar, words[curWord].Length),
@@ -203,8 +254,53 @@ public class Secret
 
         }
 
+        */
+        #endregion
+        //Több ideje gondolkoztam azon hogy valószínüleg rekurzívan kellene megoldani, de még sok tapasztalatom nem volt vele
+        //de megpróbálom mégiscsak.
+
+        for (int i = 0; i < words.Count; i++)
+        {
+            curmsg = true;
+            message1CurrentCharacter = 0;
+            message2CurrentCharacter = 0;
+
+            PossibleKeys.Add(
+                Decrypt(
+                    CurrentMessage.Substring(0,words[i].Length),
+                    words[i]
+                )
+            );
+
+            
+            if(!Checker(words[i]))
+            {
+                PossibleKeys.RemoveAt(PossibleKeys.Count-1);
+            }
+            else if (LastKey.Length < maxKeyLength)
+            {
+                PossibleKeys.RemoveAt(PossibleKeys.Count-1);
+            }
+        }
+
         Console.WriteLine("Possible Keys - {0}", possibleKeys.Count);
         return possibleKeys.ToArray();
+    }
+
+    private bool Checker(string lastWord)
+    {
+        string[] pWords = Finder(
+            Decrypt(
+                OppositeMessage.Substring(messageGiveCharacter(false),lastWord.Length),
+                LastKey.Substring(messageGiveCharacter(),lastWord.Length)
+            ).Split(' ')[0]
+        );
+        System.Console.WriteLine("{0} - {1}",LastKey,PossibleKeys.Count);
+        foreach (string word in pWords)
+        {
+            Console.WriteLine(word);
+        }
+        return true;
     }
 
     private string[] Finder(string inword) //Vissza ad egy tömböt az összes lehetséges szóval
