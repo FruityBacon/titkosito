@@ -46,7 +46,7 @@ class Program
                 case "-h" :
                     // Segítés kiíratása. Először egy kis ascii art utána pedig a leírás
                     Console.WriteLine(" _   _ _   _             _ _     \n| |_(_) |_| | _____  ___(_) |_ ___  \n| __| | __| |/ / _ \\/ __| | __/ _ \\ \n| |_| | |_|   < (_) \\__ \\ | || (_) |\n \\__|_|\\__|_|\\_\\___/|___/_|\\__\\___/ ");
-                    Console.WriteLine(titkosito.Help());
+                    Console.WriteLine(Help());
                     return;
 
                 default:
@@ -60,5 +60,10 @@ class Program
             return;
         }
         
+    }
+    public static string Help()
+    {
+        return
+        "Készítette Kiss Máté\n\nLeírás:\n\tAz angol abc betűivel írt üzenetek titkosítására és visszafejtésére alkalmas program.\n\nMűveletek:\n\t-c [TITKOS ÜZENET] [TITKOS ÜZENET]\n\t-e [ÜZENET] [KULCS]\n\t-d [TITKOSÍTOTT ÜZENET] [KULCS]\n\t-h\n\nMagyarázat:\n\t-c \tFeltörés, adjon meg kettő titkosított üzenetet, és vissza adja a lehetséges közös kulcsukat.\n\t-e \tTitkosítás, adja meg a titkosítani kívánt üznetet és hozzá a kulcsot.\n\t-d\tVisszafejtés, adja meg a titkosított üzenetet és utána a kulcsot.\n\t-h\tSegítség előhívása.";
     }
 }

@@ -80,6 +80,32 @@ public class Secret
             return curmsg? message2CurrentCharacter : message1CurrentCharacter;
        }
     }
+    private int CurrentMessageCharacter {
+        get => curmsg? message1CurrentCharacter : message2CurrentCharacter;
+        set {
+            if (curmsg)
+            {
+                message1CurrentCharacter = value;
+            }
+            else
+            {
+                message2CurrentCharacter = value;
+            }
+        }
+    }
+    private int OppositeMessageCharacter {
+        get => !curmsg? message1CurrentCharacter : message2CurrentCharacter;
+        set {
+            if (!curmsg)
+            {
+                message1CurrentCharacter = value;
+            }
+            else
+            {
+                message2CurrentCharacter = value;
+            }
+        }
+    }
     private int maxKeyLength {
         get => (message1.Length < message2.Length)? message1.Length : message2.Length;
     }
@@ -271,9 +297,8 @@ public class Secret
                     words[i]
                 )
             );
-
             
-            if(!Checker(words[i]))
+            if(Checker(words[i]) == null)
             {
                 PossibleKeys.RemoveAt(PossibleKeys.Count-1);
             }
@@ -287,20 +312,98 @@ public class Secret
         return possibleKeys.ToArray();
     }
 
-    private bool Checker(string lastWord)
+    private string[]? Checker(string lastWord)
     {
+
         string[] pWords = Finder(
             Decrypt(
                 OppositeMessage.Substring(messageGiveCharacter(false),lastWord.Length),
                 LastKey.Substring(messageGiveCharacter(),lastWord.Length)
             ).Split(' ')[0]
         );
+        if (pWords.Length == 0)
+        {
+            return null;
+        }
+
         System.Console.WriteLine("{0} - {1}",LastKey,PossibleKeys.Count);
+
+        List<string[]> pSegments = new();
+
         foreach (string word in pWords)
         {
-            Console.WriteLine(word);
+            int backup1 = messageGiveCharacter();
+            int backup2 = messageGiveCharacter(false);
+            string backupKey = LastKey;
+            bool messageState = curmsg;
+            string[] sWords;
+
+            if (word.Length > lastWord.Length)
+            {
+                //ha az új szó hoszabb mint az utolsó, akkor az régi szó hosszát + 1 (space) adjuk meg
+                //a kulcshoz is ennyit adunk hozzá
+                if (word.Length == lastWord.Length +1)
+                {
+                    continue;
+                }
+
+                //System.Console.WriteLine("{0}\t{1}\t{2}\t{3}",);
+                sWords = Finder(
+                    Decrypt(
+                        CurrentMessage.Substring(messageGiveCharacter()+lastWord.Length+1,messageGiveCharacter()+word.Length),
+                        LastKey.Substring(messageGiveCharacter(false)+lastWord.Length+1)
+                    )
+                );
+                CurrentMessageCharacter += word.Length;
+                OppositeMessageCharacter += lastWord.Length+1;
+            }
+            else
+            {
+                //ha az új szó rövidebb akkor az új szó hosszát + 1 (space) adjuk meg a character helyének
+                //a kulcshoz is ezt adjuk meg
+                if (word.Length+1 == lastWord.Length)
+                {
+                    continue;
+                }
+
+                sWords = Finder(
+                    Decrypt(
+                        CurrentMessage.Substring(messageGiveCharacter()+word.Length+1,messageGiveCharacter()+lastWord.Length),
+                        LastKey.Substring(messageGiveCharacter(false)+word.Length+1)
+                    )
+                );
+                CurrentMessageCharacter += lastWord.Length;
+                OppositeMessageCharacter += word.Length+1;
+            }
+
+            curmsg = !messageState;
+            foreach (string sWord in sWords)
+            {
+                string[]? retval = Checker(sWord);
+                if (retval != null)
+                {
+                    pSegments.Add(retval);
+                }
+                else
+                {
+                    curmsg = messageState;
+                    LastKey = backupKey;
+                    CurrentMessageCharacter = backup1;
+                    OppositeMessageCharacter = backup2;
+                    
+                }
+            }
+            
         }
-        return true;
+        if (pSegments.Count > 0)
+        {
+            foreach (var item in pSegments)
+            {
+                Console.Write("{0};",item);
+            }
+            System.Console.WriteLine();
+        }
+        return null;
     }
 
     private string[] Finder(string inword) //Vissza ad egy tömböt az összes lehetséges szóval
@@ -313,10 +416,189 @@ public class Secret
         }
         return output.ToArray();
     }
+}
 
-    public string Help()
+public class Cracker
+{
+    private Secret secret = new();
+    private Message message1;
+    public Message FirstMessage
     {
-        return
-        "Készítette Kiss Máté\n\nLeírás:\n\tAz angol abc betűivel írt üzenetek titkosítására és visszafejtésére alkalmas program.\n\nMűveletek:\n\t-c [TITKOS ÜZENET] [TITKOS ÜZENET]\n\t-e [ÜZENET] [KULCS]\n\t-d [TITKOSÍTOTT ÜZENET] [KULCS]\n\t-h\n\nMagyarázat:\n\t-c \tFeltörés, adjon meg kettő titkosított üzenetet, és vissza adja a lehetséges közös kulcsukat.\n\t-e \tTitkosítás, adja meg a titkosítani kívánt üznetet és hozzá a kulcsot.\n\t-d\tVisszafejtés, adja meg a titkosított üzenetet és utána a kulcsot.\n\t-h\tSegítség előhívása.";
+        get => message1;
+    }
+    private Message message2;
+    public Message SecondMessage
+    {
+        get => message2;
+    }
+    
+    private List<List<string>> possible_keys = new(); // [i] = kezdőszó, [j] = minden lehetőség ezzel a kezdőszóval
+    public string[] PossibleKeys {
+        get {
+            List<string> output = new();
+            for (int i = 0; i < possible_keys.Count; i++)
+            {
+                for (int j = 0; j < possible_keys[i].Count; j++)
+                {
+                    output.Add(possible_keys[i][j]);
+                }
+            }
+            return output.ToArray();
+        }
+    }
+    private List<string> word_list = new();
+    public string[] WordList {
+        get => word_list.ToArray();
+    }
+
+    public Cracker(string message1, string message2, List<string> word_list)
+    {
+        this.message1 = new(message1);
+        this.message2 = new(message2);
+        this.word_list = word_list;
+    }
+
+    public void Start()
+    {
+        foreach (string word in WordList)
+        {
+            List<string>? perword = Checker(word);
+            if (perword == null)
+            {
+                continue;
+            }
+            possible_keys.Add(perword);
+        }
+    }
+
+    private List<string>? Checker(string inputWord)
+    {
+
+        return null;
+    }
+
+    private string? FindSegment(string inputWord, Message message) //vissza ad egy kulcs részleget amit fel lehet használni keresésre
+    {
+        string? segment = message.GetSegment(inputWord.Length);
+
+        if (segment == null)
+        {
+            return null;
+        }
+
+        return this.secret.Decrypt(
+            segment,
+            inputWord
+        );
+        
+    }
+
+    private string[]? FindWords(string inputSegment) //vissza ad minden lehetséges szót ami a szó részlettel kezdődik
+    {
+        List<string> words = new();
+        string[] seperates = inputSegment.Split(' ');
+        for (int i = 0; i < seperates.Length; i++)
+        {
+            if (seperates[i].Length == 1)
+            {
+                switch (seperates[i].ToLower()) //Csak kettő 1 betűs szó létezik
+                {
+                    case "a":
+                        words.Add(seperates[i]);
+                        continue;
+                    case "i":
+                        words.Add(seperates[i]);
+                        continue;
+                    default:
+                        continue;
+                }
+            }
+            foreach (string word in word_list)
+            {
+                if (word.StartsWith(seperates[i]))
+                {
+                    words.Add(word);
+                }
+            }
+        }
+        
+        return (words.Count > 0)? words.ToArray() : null;
+    }
+}
+
+public class Message
+{
+    private string msg;
+    public string FullMessage {
+        get => msg;
+    }
+    public int MaxLength {
+        get => msg.Length;
+    }
+
+    private int charPos = 0;
+    public int CharacterPosition {
+        get => charPos;
+        set => charPos = value;
+    }
+
+    public string GetAfterCharPos(int pos = -1)
+    {
+        if (pos < 0)
+        {
+            pos = charPos;
+        }
+        if (pos >= this.MaxLength)
+        {
+            pos = this.MaxLength - 1;
+        }
+        return msg.Substring(pos);
+    }
+    public string GetBeforeCharPos(int pos = -1)
+    {
+        if (pos < 0)
+        {
+            pos = charPos;
+        }
+        if (pos >= this.MaxLength)
+        {
+            pos = this.MaxLength - 1;
+        }
+        return msg.Substring(0,pos);
+    }
+
+    public string? GetSegment(int? endpos = null) //karakter pozíciótól függően vissza adja az előtte vagy utána jövő n karaktert string ként
+    {
+        if (endpos == null)
+        {
+            return null;
+        }
+        else if(endpos < 0)
+        {
+            if (this.charPos + (int)endpos >= 0)
+            {
+                endpos += charPos; 
+            }
+            else
+            {
+                endpos = 0;
+            }
+            return msg.Substring((int)endpos,charPos);
+        }
+        else
+        {
+            endpos = (endpos >= MaxLength)? MaxLength-1 : endpos;
+            return msg.Substring(charPos,(int)endpos);
+        }
+    }
+
+    public override string ToString()
+    {
+        return msg;
+    }
+
+    public Message(string msg)
+    {
+        this.msg = msg;
     }
 }
