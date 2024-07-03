@@ -13,22 +13,37 @@ class Program
             Console.WriteLine("Segítségért használja a -h müveletet!");
             return;
         }
-        Secret titkosito = new();
+        
         try
         {
-            if (args.Length != 3 && args[0] != "-h")
+            int exceptedInputCount = 3;
+            if (args.Length != exceptedInputCount && args[0] != "-h" && args[0] != "-c")
             {
-                throw new Exception("Túl "+((args.Length > 3)? "sok" : "kevés")+" érték volt megadva!");
+                throw new Exception("Túl "+((args.Length > exceptedInputCount)? "sok" : "kevés")+" érték volt megadva!");
             }
+
+            Secret titkosito = new();
 
             switch (args[0]) // művelet megadása kötelező
             {
                 case "-c" :
                     // Crack, avagy feltörés. Kettő titkosított üzenet megadásával lehetséges lehet vissza kapni az eredeti közös kulcsot.
-
-                    string[] output = titkosito.Crack(args[1],args[2]);
-                    for (int i = 0; i < output.Length; i++)
-                        Console.WriteLine(output[i]);
+                    
+                    StreamReader sr =  (args.Length == 4)? new(args[3]) : new("words.txt");
+                    List<string> wordList = new();
+                    while(!sr.EndOfStream)
+                    {
+                        string? line = sr.ReadLine();
+                        if (line != null)
+                        {
+                            wordList.Add(line);
+                        }
+                    }
+                    sr.Close();
+                    Cracker cracker = new(args[1],args[2],wordList);
+                    cracker.Start();
+                    for (int i = 0; i < cracker.PossibleKeys.Length; i++)
+                        Console.WriteLine(cracker.PossibleKeys[i]);
                     break;
 
                 case "-e" : 
