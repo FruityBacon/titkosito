@@ -148,18 +148,6 @@ public class Cracker : Secret
                 letter_bookmarks.Add(prevChar, i);
             }
         }
-        foreach (var item in this.charvals)
-        {
-            try
-            {
-                Console.WriteLine("{0}. {1}", item, letter_bookmarks[item]);
-            }
-            catch (Exception e)
-            {
-                continue;
-            }
-
-        }
     }
 
     public void Start()
@@ -184,12 +172,13 @@ public class Cracker : Secret
     private object? Checker(string inputText, Message message)
     {
         //Console.Write("{0} \t{1}\n", loopCount, inputText);
+        inputText = inputText+' ';
         if (message.MaxLength <= inputText.Length + message.CharacterPosition)
         {
             return new List<string> { inputText };
         }
 
-        inputText = inputText+' ';
+        
 
         string? KeySegment = FindSegment(inputText, message);
         string? possibleWord = null;
@@ -235,10 +224,6 @@ public class Cracker : Secret
                         }
                         nextInputWord = new[] { temp.Substring(nextwords[^1].Length) };
                     }
-                    else if(nextwords.Length == 0)
-                    {
-                        nextInputWord = word_list.ToArray();
-                    }
                     else
                     {
                         nextInputWord = FindWords(nextword);
@@ -261,7 +246,7 @@ public class Cracker : Secret
 
                     foreach (var niw in nextInputWord)
                     {
-                        if (niw.Length == inputText.Length)
+                        if (niw.Length+1 == inputText.Length)
                         {
                             continue;
                         }

@@ -1,8 +1,37 @@
-bah
-beh
-e	:	1
-Hiba: System.ArgumentOutOfRangeException: startIndex cannot be larger than length of string. (Parameter 'startIndex')
-   at System.String.ThrowSubstringArgumentOutOfRange(Int32 startIndex, Int32 length)
-   at System.String.Substring(Int32 startIndex)
-   at titkosito.Secret.Crack(String msg1, String msg2) in /home/fruit/Projects/GitHub/titkosito/Secret.cs:line 171
-   at titkosito.Program.Main(String[] args) in /home/fruit/Projects/GitHub/titkosito/Program.cs:line 29
+' ' -- cvtlsxo fiutxysspjzxtxwp
+673.0 : dance (7) - msg2
+'bbgmyf' 'ebtobe' :
+	dance
+	bun vs - f
+
+0..curiosity
+'ity ' -- cvtlsxo fiutxysspjzxtxwp
+836.0 : early (7) - msg2
+'abcdef' 'ebtobe' :
+	early
+	curios - f
+
+' ' -- cvtlsxo fiutxysspjzxtxwp
+1955.0 : place (7) - msg2
+'qrtmyf' 'ebtobe' :
+	place
+	nea vs - f
+
+' ' -- cvtlsxo fiutxysspjzxtxwp
+2117.0 : quick (7) - msg2
+'pilmsf' 'ebtobe' :
+	quick
+	oni as - f
+
+' ' -- cvtlsxo fiutxysspjzxtxwp
+2696.0 : thick (7) - msg2
+'mvlmsf' 'ebtobe' :
+	thick
+	rai as - f
+
+' ' -- cvtlsxo fiutxysspjzxtxwp
+2876.0 : voice (7) - msg2
+'kolmyf' 'ebtobe' :
+	voice
+	thi vs - f
+

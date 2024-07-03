@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/amy/Programming/work/i4p/titkosito/titkosito.csproj": {}
+    "/home/fruit/Projects/GitHub/titkosito/titkosito.csproj": {}
   },
   "projects": {
-    "/home/amy/Programming/work/i4p/titkosito/titkosito.csproj": {
+    "/home/fruit/Projects/GitHub/titkosito/titkosito.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/amy/Programming/work/i4p/titkosito/titkosito.csproj",
+        "projectUniqueName": "/home/fruit/Projects/GitHub/titkosito/titkosito.csproj",
         "projectName": "titkosito",
-        "projectPath": "/home/amy/Programming/work/i4p/titkosito/titkosito.csproj",
-        "packagesPath": "/home/amy/.nuget/packages/",
-        "outputPath": "/home/amy/Programming/work/i4p/titkosito/obj/",
+        "projectPath": "/home/fruit/Projects/GitHub/titkosito/titkosito.csproj",
+        "packagesPath": "/home/fruit/.nuget/packages/",
+        "outputPath": "/home/fruit/Projects/GitHub/titkosito/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/amy/.nuget/NuGet/NuGet.Config"
+          "/home/fruit/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
@@ -53,7 +53,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/7.0.119/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/7.0.119/RuntimeIdentifierGraph.json"
         }
       }
     }
