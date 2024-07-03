@@ -1,8 +1,4 @@
- _   _ _   _             _ _     
-| |_(_) |_| | _____  ___(_) |_ ___  
-| __| | __| |/ / _ \/ __| | __/ _ \ 
-| |_| | |_|   < (_) \__ \ | || (_) |
-\__|_|\__|_|\_\___/|___/_|\__|\___/
+# Titkosito
 ## Készítette Kiss Máté
 
 Ennek a programnak a feladata hogy egy üzenetet titkosítson, majd a készített kulcs és titkos üzenet felhasználásával vissza adja az eredeti üzenetet.
@@ -10,8 +6,8 @@ Ennek a programnak a feladata hogy egy üzenetet titkosítson, majd a készítet
 Ezt a programot egy feladat részeként készítettem az I4P részére.
 
 
-Leírás:
-    Az angol abc betűivel írt üzenetek titkosítására és visszafejtésére alkalmas program.
+    Leírás:
+        Az angol abc betűivel írt üzenetek titkosítására és visszafejtésére alkalmas program.
     
     Műveletek:
         -c [TITKOS ÜZENET] [TITKOS ÜZENET]
