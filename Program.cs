@@ -29,7 +29,7 @@ class Program
                 case "-c" :
                     // Crack, avagy feltörés. Kettő titkosított üzenet megadásával lehetséges lehet vissza kapni az eredeti közös kulcsot.
                     
-                    StreamReader sr =  (args.Length == 4)? new(args[3]) : new("words.txt");
+                    StreamReader sr =  (args.Length == 4 && args[3] != "teszt")? new(args[3]) : new("words.txt");
                     List<string> wordList = new();
                     while(!sr.EndOfStream)
                     {
@@ -41,7 +41,14 @@ class Program
                     }
                     sr.Close();
                     Cracker cracker = new(args[1],args[2],wordList);
-                    cracker.Start();
+                    if(args.Length == 4 && args[3] == "teszt")
+                    {
+                        cracker.Test();
+                    }
+                    else
+                    {
+                        cracker.Start();
+                    }
                     for (int i = 0; i < cracker.PossibleKeys.Length; i++)
                         Console.WriteLine(cracker.PossibleKeys[i]);
                     break;

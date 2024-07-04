@@ -7,5 +7,5 @@ A=$(./titkosito -e "hello world" "keykeykeykeykey")
 ./titkosito -d "ebtobehpzmjnmfqwuirlazvslpm" "abcdefghijklmnopqrstuvwxyzabcdefg"
 
 
-./titkosito -c "cvtlsxo fiutxysspjzxtxwp" "ebtobehpzmjnmfqwuirlazvslpm" > output.txt
-./titkosito -c "ebtobehpzmjnmfqwuirlazvslpm" "cvtlsxo fiutxysspjzxtxwp" > outputalt.txt
+./titkosito -c "cvtlsxo fiutxysspjzxtxwp" "ebtobehpzmjnmfqwuirlazvslpm" "teszt" > output.txt
+./titkosito -c "ebtobehpzmjnmfqwuirlazvslpm" "cvtlsxo fiutxysspjzxtxwp" "teszt" > outputalt.txt
