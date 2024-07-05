@@ -106,6 +106,11 @@ public class Cracker : Secret
     private int loopCount = 0;
     private int roundCount = 0;
 
+    private int MaxKeyLength {
+        get {
+            return (message1.MaxLength>message2.MaxLength)? message2.MaxLength : message1.MaxLength;
+        }
+    }
     #endregion
 
     #region arrays
@@ -211,7 +216,12 @@ public class Cracker : Secret
         foreach (string word in WordList)
         {
             //Console.WriteLine("{0}. {1}", roundCount, word);
-            List<string>? perword = (List<string>?)Checker(word);
+            object? Cracked = NewChecker(word+" ");
+            List<string>? perword = null;
+            if (Cracked != null)
+            {
+                perword = (List<string>)Cracked;
+            }
             roundCount++;
             loopCount = 0;
             cmsg = true;
@@ -229,12 +239,18 @@ public class Cracker : Secret
     {
         System.Console.WriteLine("NEW LOOP {0} '{1}' Using {2}",loopCount++,inputText,(isKnownKeyPart?"Key":"Starter Word"));
         System.Console.WriteLine("Working sentence: '{0}'",CurrentMessage);
+
+        if (inputText.Length >= this.MaxKeyLength && isKnownKeyPart)
+        {
+            return inputText;
+        }
         string writeout = "";
-        string? KeySegment = null;
         string possibleSegment;
+        bool local_cmsg = cmsg;
 
         if (isKnownKeyPart == false)
         {
+            string? KeySegment = null;
             KeySegment = Decrypt(
                 CurrentMessage.GetSegment(inputText.Length),
                 inputText
@@ -256,26 +272,35 @@ public class Cracker : Secret
                 {
                     if (FindFirstWord(word) == null && FindWordsEndsWith(word) == null)
                     {
+                        System.Console.WriteLine("Not a word");
                         return null;
                     }
                 }
+                try
+                {
+                    possibleWords = new[] { FindFirstWord(wordsInSegment[^1]) };
+                    possibleSegment = possibleSegment.Substring(0, possibleSegment.Length-possibleWords[0].Length);
+                    writeout += "\nNewPossibleSegment: "+possibleSegment+'"';
+                }
+                catch (System.Exception)
+                {
+                    return null;
+                }
                 
-                possibleWords = new[] { FindFirstWord(wordsInSegment[^1]) };
-                possibleSegment = possibleSegment.Substring(0, possibleSegment.Length-possibleWords[0].Length);
-                writeout += "\nNewPossibleSegment: "+possibleSegment+'"';
             }
             else
             {
                 possibleWords = FindWordsStartingWith(possibleSegment);
                 if (possibleWords == null)
                 {
+                    System.Console.WriteLine("Wasn't a word.");
                     return null;
                 }
 
 
             }
 
-            bool local_cmsg = cmsg;
+
             string writtenout = writeout;
             foreach (string word in possibleWords)
             {
@@ -308,13 +333,63 @@ public class Cracker : Secret
 
                 System.Console.WriteLine(writeout);
                 cmsg = !local_cmsg;
-                NewChecker(newKeySegment,true);
+                object? ret = NewChecker(newKeySegment,true);
+                switch (ret)
+                {
+                    case string _:
+                        System.Console.WriteLine("It's a string");
+                        break;
+
+                    case List<string> _:
+                        System.Console.WriteLine("It's a list");
+                    break;
+
+                    case null:
+                        System.Console.WriteLine("It failed");
+                        break;
+                    
+                }
 
             }
         }
         else
         {
             System.Console.WriteLine("You just passed on a key, Congrats!");
+            possibleSegment = Decrypt(OppositeMessage.GetSegment(inputText.Length),inputText);
+            string[] possibleNextWords = FindWordsStartingWith(possibleSegment.Split(' ')[^1]);
+            foreach (string word in possibleNextWords)
+            {
+                System.Console.WriteLine(word);
+                
+                string workingWord = word.Substring(possibleSegment.Split(' ')[^1].Length)+" ";
+                
+                System.Console.WriteLine("'{0}'",workingWord);
+
+                string newKeySegment = inputText + Decrypt(
+                    OppositeMessage.FullMessage.Substring(inputText.Length,workingWord.Length),
+                    workingWord
+                );
+
+                System.Console.WriteLine(newKeySegment);
+                cmsg = !local_cmsg;
+                object? ret = NewChecker(newKeySegment,true);
+                switch (ret)
+                {
+                    case string _:
+                        System.Console.WriteLine("It's a string");
+                        break;
+
+                    case List<string> _:
+                        System.Console.WriteLine("It's a list");
+                    break;
+
+                    case null:
+                        System.Console.WriteLine("It failed");
+                        break;
+                    
+                }
+            }
+
         }
 
         
