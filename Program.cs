@@ -49,6 +49,7 @@ class Program
                     {
                         cracker.Start();
                     }
+                    System.Console.WriteLine(cracker.PossibleKeys.Length);
                     for (int i = 0; i < cracker.PossibleKeys.Length; i++)
                         Console.WriteLine(cracker.PossibleKeys[i]);
                     break;

@@ -9,3 +9,5 @@ A=$(./titkosito -e "hello world" "keykeykeykeykey")
 
 ./titkosito -c "cvtlsxo fiutxysspjzxtxwp" "ebtobehpzmjnmfqwuirlazvslpm" "teszt" > output.txt
 ./titkosito -c "ebtobehpzmjnmfqwuirlazvslpm" "cvtlsxo fiutxysspjzxtxwp" "teszt" > outputalt.txt
+./titkosito -c "cvtlsxo fiutxysspjzxtxwp" "ebtobehpzmjnmfqwuirlazvslpm"  > outputLive.txt
+./titkosito -c "ebtobehpzmjnmfqwuirlazvslpm" "cvtlsxo fiutxysspjzxtxwp"  > outputaltLive.txt
