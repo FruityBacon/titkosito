@@ -84,29 +84,31 @@ public class Cracker : Secret
 {
     #region variables
 
-    private Message message1;
+    private Message message1; //Tartalmazza az első kulcsot
     public Message FirstMessage
     {
         get => message1;
+        set => message1 = value;
     }
-    private Message message2;
+
+    private Message message2; //Tartalmazza a második kulcsot
     public Message SecondMessage
     {
         get => message2;
+        set => message2 = value;
     }
+
     private bool cmsg = true;
     private Message CurrentMessage
     {
-        get => cmsg ? message1 : message2;
+        get => cmsg ? message1 : message2; //vissza adja vagy az első vagy a második üzenetet attól függően hogy igaz vagy hamis
     }
-    private Message OppositeMessage
+    private Message OppositeMessage //vissza adja a CurrentMessage(cmsg) ellenkezőjét képviselő üzenetet
     {
         get => !cmsg ? message1 : message2;
     }
-    private int loopCount = 0;
-    private int roundCount = 0;
 
-    private int MaxKeyLength
+    private int MaxKeyLength // A kapott kulcs csak akkora lehet mint a rövidebbik mondat, ezért annak a hosszát adja vissza
     {
         get
         {
@@ -114,19 +116,11 @@ public class Cracker : Secret
         }
     }
 
-    private Message ShorterMessage
-    {
-        get
-        {
-            return (message1.MaxLength > message2.MaxLength) ? message2 : message1;
-        }
-    }
-
     #endregion
 
     #region arrays
 
-    private List<List<string>> possible_keys = new(); // [i] = kezdőszó, [j] = minden lehetőség ezzel a kezdőszóval
+    private List<List<string>> possible_keys = new(); // Kezdőszavanként listákat tartalmaz lehetséges kulcsok részére
     public string[] PossibleKeys
     {
         get
@@ -142,8 +136,8 @@ public class Cracker : Secret
             return output.ToArray();
         }
     }
-    private List<string> word_list = new();
-    private Dictionary<char, int> letter_bookmarks = new();
+    private List<string> word_list = new(); // Ez tartalmazza a szótárat
+    private Dictionary<char, int> letter_bookmarks = new(); // Ez tartalmaz könyvjelzőket ahhoz hogy a szótáron belül hol kezdődnek betűk
     public string[] WordList
     {
         get => word_list.ToArray();
@@ -151,13 +145,16 @@ public class Cracker : Secret
 
     #endregion
 
-    public Cracker(string message1, string message2, List<string> word_list)
+    public Cracker(string message1, string message2, List<string> word_list) // A feltöréshez mindenféle képpen kell a kettő üzenet és egy szótár, a szótárat kívülről kapja meg valamilyen módszer szerint
     {
         this.message1 = new(message1);
         this.message2 = new(message2);
-        word_list.Sort();
+        
+        word_list.Sort();   // Nem tudjuk hogy alapból rendezett-e vagy sem, ezért rendezzük mi abcsorrend szerint
         this.word_list = word_list;
-        char prevChar = word_list[0][0];
+
+        char prevChar = word_list[0][0];    // A könyvjelző mentéshez eltárolja a legutóbbi kezdőbetűt, először az első szó legelső betüjét
+
         letter_bookmarks.Add(prevChar, 0);
         for (int i = 0; i < word_list.Count; i++)
         {
@@ -171,11 +168,17 @@ public class Cracker : Secret
 
     public void Start()
     {
-        foreach (string word in WordList)
+        foreach (string word in WordList) // A szótár minden betüjét végigjárjuk hogy biztosan ne hadjuk ki a lehetséges kezdőszót
         {
-            //("{0}. {1}", roundCount, word);
-            List<string>? KeysFromWord = (List<string>?)Checker(word + " ");
+
+            List<string>? KeysFromWord = (List<string>?)Checker(word + " "); // A Checker() minden lehetséges kulcsot vissza ad nekünk ezzel a kezdőszóval. Ha nem talált egyet sem akkor Null
+
             List<string>? perword = new();
+
+            /*
+                Hogyha talált számunkra kulcsot a Checker(), akkor végig nézzük egyesével az összeset,
+                hogy tényleg csak létező szavakat kapunk-e vissza az eredeti üzeneteinkből 
+            */
 
             if (KeysFromWord != null)
             {
@@ -209,69 +212,64 @@ public class Cracker : Secret
                         }
                     }
 
-                    if (KeyIsCorrect)
+                    if (KeyIsCorrect) 
                     {
-                        perword.Add(KeysFromWord[i]);
+                        perword.Add(KeysFromWord[i]); // Ha sehol se volt hibás szó, akkor elmentjük ezt a kulcsot
                     }
 
                 };
             }
-            roundCount++;
-            loopCount = 0;
+
+            // Mindig az első mondattal kezdünk, és ezt itt állítjuk vissza az eredti helyzetére
             cmsg = true;
-            message1.CharacterPosition = 0;
-            message2.CharacterPosition = 0;
 
             if (perword.Count > 0)
             {
-                possible_keys.Add(perword);
+                possible_keys.Add(perword); //  Ha volt lehetséges kulcs, akkor elmentjük
             }
         }
     }
 
-    private object? Checker(string inputText, bool isKnownKeyPart = false)
+    private object? Checker(string inputText, bool isKnownKeyPart = false) //object? mert három különböző lehetőséget kapunk vissza belőle, null, string vagy List<string>
     {
-        if (inputText.Length >= this.MaxKeyLength && isKnownKeyPart)
+        if (inputText.Length >= this.MaxKeyLength && isKnownKeyPart) // Ha a megdott szöveg nagyobb vagy olyan hosszú mint a maximum hossz, és kulcs akkor vissza adja mint string
         {
             return inputText;
         }
-        string writeout = "";
-        string possibleSegment;
-        bool local_cmsg = cmsg;
+
+        string possibleSegment; //Ez fogja tárolni hogy a megadott kezdőszavunk az minek felel meg a másik üzenetben
+        bool local_cmsg = cmsg; //elmentjük hogy milyen kulccsal kezdődött ez a loop
         List<string> list = new();
 
-        if (isKnownKeyPart == false)
+        if (isKnownKeyPart == false) //Ha a megadott üzenet nem kulcs, akkor kezdőszóként kezeljük
         {
             string? KeySegment = null;
             KeySegment = Decrypt(
                 CurrentMessage.GetSegment(inputText.Length),
                 inputText
             );
-            writeout += "\nKeySegment: " + KeySegment;
 
             possibleSegment = Decrypt(
                 OppositeMessage.GetSegment(KeySegment.Length),
                 KeySegment
             );
-            writeout += "\npossibleSegment: " + possibleSegment;
 
-            writeout += "\npS words:";
-            string[]? possibleWords = new string[0];
-            if (possibleSegment.Contains(' '))
+            string[]? possibleWords = new string[0]; //Ez tartalmaz minden lehetséges szót a feltörés folytatásához
+            if (possibleSegment.Contains(' ')) //Ha az ellenkező üzenetből vissza kapott rész tartalmaz ' '-t akkor tudjuk hogy a következő szó kisebb
             {
-                string[] wordsInSegment = possibleSegment.TrimEnd(' ').Split(' ');
+                string[] wordsInSegment = possibleSegment.TrimEnd(' ').Split(' '); 
                 foreach (string word in wordsInSegment)
                 {
-                    if (FindFirstWord(word) == null && FindWordsEndsWith(word) == null)
+                    if (FindFirstWord(word) == null && FindWordsEndsWith(word) == null) //ha a szegmensben lévő szavak benne vannak a szótárban akkor folytatjuk
                     {
                         return null;
                     }
                 }
+
                 try
                 {
-                    possibleWords = new[] { FindFirstWord(wordsInSegment[^1]) };
-                    possibleSegment = possibleSegment.Substring(0, possibleSegment.Length - possibleWords[0].Length);
-                    writeout += "\nNewPossibleSegment: " + possibleSegment + '"';
+                    possibleWords = new[] { FindFirstWord(wordsInSegment[^1]) }; //Ellenőrzést követően, az utolsó szegmenst mentjük csak el mint "következő szó"
+                    possibleSegment = possibleSegment.Substring(0, possibleSegment.Length - possibleWords[0].Length); //a korábbi szegmensből csak azt tartjuk meg ami kell
                 }
                 catch (System.Exception)
                 {
@@ -279,9 +277,9 @@ public class Cracker : Secret
                 }
 
             }
-            else
+            else //ha a ellenkező mondatbóli szegmens az nem tartalmaz ' '-t akkor a keresett szavunk nagyobb
             {
-                possibleWords = FindWordsStartingWith(possibleSegment);
+                possibleWords = FindWordsStartingWith(possibleSegment); //Megnézzük hogy létezik-e szó abban a szegmensben amit kaptunk
                 if (possibleWords == null)
                 {
                     return null;
@@ -291,17 +289,12 @@ public class Cracker : Secret
             }
 
 
-            string writtenout = writeout;
-            foreach (string word in possibleWords)
+            foreach (string word in possibleWords) // Egyesével ellenőrizve az összes lehetséges következő szót
             {
-                writeout = writtenout;
                 string newKeySegment = KeySegment;
-                writeout += "\n\t" + word;
 
                 if (KeySegment.Length < word.Length)
                 {
-                    writeout += "\n\t" + Repeater(" ", possibleSegment.Length - 1) + "'" + word.Substring(possibleSegment.Length) + " '";
-
                     newKeySegment += Decrypt(
                         OppositeMessage.FullMessage.Substring(
                             possibleSegment.Length,
@@ -319,38 +312,37 @@ public class Cracker : Secret
                         ), word + " "
                     );
                 }
-                writeout += "\nNewKeySegment: " + newKeySegment + "\n";
 
-                cmsg = !local_cmsg;
-                switch (Checker(newKeySegment, true))
+                cmsg = !local_cmsg; // A kezdő mondatunk ellenkezőjével ellenőrizzük majd a következő szegmenst
+                switch (Checker(newKeySegment, true)) // mivel kulcs részleget adunk meg, ezért megadjuk az is hogy igen egy kulcs
                 {
-                    case string ret:
+                    case string ret: // ha csak egy stringet kapunk vissza, akkor is listaként vár választ, így listába mentjük
                         list.Add(ret);
                         break;
 
-                    case List<string> ret:
+                    case List<string> ret: //ha listát kapunk vissza, akkor kimentjük az eredményeket egy új listába
                         foreach (string item in ret)
                         {
                             list.Add(item);
                         }
                         break;
 
-                    case null:
+                    case null: //ha nem kaptunk vissza semmit akkor sikertelen volt a kezdőszó
                         break;
 
                 }
 
             }
         }
-        else
+        else // Ha kulcsot kaptunk akkor máshogy kezeljük az inputText-et
         {
             try
             {
-                possibleSegment = Decrypt(OppositeMessage.GetSegment(inputText.Length), inputText);
+                possibleSegment = Decrypt(OppositeMessage.GetSegment(inputText.Length), inputText); //kulcsként kezeljük
 
-                string[] possibleNextWords = FindWordsStartingWith(possibleSegment.Split(' ')[^1]);
+                string[] possibleNextWords = FindWordsStartingWith(possibleSegment.Split(' ')[^1]); //feltételezzük hogy a mondat többi része helyes és az utolsó szegmenssel foglalkozunk
 
-                string newKeySegment = inputText;
+                string newKeySegment = inputText; //az eredeti inputot elmentjük egy saját változóba
 
                 foreach (string word in possibleNextWords)
                 {
@@ -358,8 +350,8 @@ public class Cracker : Secret
 
                     int partLength = int.Clamp(workingWord.Length + inputText.Length - MaxKeyLength, 0, MaxKeyLength);
 
-                    if (word.Length >= MaxKeyLength - inputText.Length)
-                    {
+                    if (word.Length >= MaxKeyLength - inputText.Length) // ha az új szegmenssel túl lépnénk a maximum kulcs hosszon, akkor új szóval próbálkozunk
+                    {                                                   // vagy visszavonjuk a ' '-t a végéről
                         if (partLength > 1)
                         {
                             continue;
@@ -371,12 +363,13 @@ public class Cracker : Secret
 
                     }
 
-                    newKeySegment += Decrypt(
+                    //Hozzáadjuk a kapott kulcsrészhez az új feltételezett kulcs részt, ami után ezt adjuk tovább
+                    newKeySegment += Decrypt(                       
                         OppositeMessage.FullMessage.Substring(inputText.Length, workingWord.Length),
                         workingWord
                     );
 
-
+                    //a következő alkalommal megint az ellenkező szöveggel akarunk foglalkozni
                     cmsg = !local_cmsg;
                     switch (Checker(newKeySegment, true))
                     {
@@ -396,6 +389,7 @@ public class Cracker : Secret
                             break;
 
                     }
+                    //a következő szó ellenőrzése érdekében, vissza állítjuk a két fő értéket az eredeti állapotára
                     newKeySegment = newKeySegment.Substring(0, newKeySegment.Length - workingWord.Length);
                     cmsg = local_cmsg;
                 }
@@ -407,21 +401,10 @@ public class Cracker : Secret
 
         }
 
-        return (list.Count > 0) ? list : null;
+        return (list.Count > 0) ? list : null; //ha van lista elem, akkor lsitát ad vissza, különben viszont sikertelen volt az ellenőrzés
     }
 
-
-    private string Repeater(string wordToRepeat, int count)
-    {
-        count--;
-        if (count > 0)
-        {
-            wordToRepeat += Repeater(wordToRepeat, count);
-        }
-        return wordToRepeat;
-    }
-
-    private string? FindFirstWord(string inputSegment)
+    private string? FindFirstWord(string inputSegment) //vissza adja az első találatot ami a megadott szegmenssel kezdődik
     {
         if (inputSegment.Length == 0 || inputSegment[0] == ' ' || !letter_bookmarks.ContainsKey(inputSegment[0]))
         {
@@ -444,7 +427,7 @@ public class Cracker : Secret
         return ret;
     }
 
-    private string[]? FindWordsStartingWith(string inputLetter)
+    private string[]? FindWordsStartingWith(string inputLetter) //vissza ad minden találatot ami a megadott szegmenssel kezdődik
     {
         List<string> ret = new();
         if (inputLetter.Length == 0 || inputLetter[0] == ' ' || !letter_bookmarks.ContainsKey(inputLetter[0]))
@@ -474,7 +457,7 @@ public class Cracker : Secret
         return ret.ToArray();
     }
 
-    private string[]? FindWordsEndsWith(string inputSegment) //vissza ad minden lehetséges szót ami a szó részlettel kezdődik
+    private string[]? FindWordsEndsWith(string inputSegment) //vissza ad minden lehetséges szót ami a szó részlettel végződik
     {
         List<string> words = new();
         string[] seperates = inputSegment.Split(' ');
@@ -548,31 +531,6 @@ public class Message
     {
         get => charPos;
         set => charPos = int.Clamp(value, 0, this.MaxLength);
-    }
-
-    public string GetAfterCharPos(int pos = -1)
-    {
-        if (pos < 0)
-        {
-            pos = charPos;
-        }
-        if (pos >= this.MaxLength)
-        {
-            pos = this.MaxLength - 1;
-        }
-        return msg.Substring(pos);
-    }
-    public string GetBeforeCharPos(int pos = -1)
-    {
-        if (pos < 0)
-        {
-            pos = charPos;
-        }
-        if (pos >= this.MaxLength)
-        {
-            pos = this.MaxLength - 1;
-        }
-        return msg.Substring(0, pos);
     }
 
     public string? GetSegment(int? inpos = null) //karakter pozíciótól függően vissza adja az előtte vagy utána jövő n karaktert string ként
