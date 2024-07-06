@@ -412,10 +412,14 @@ public class Cracker : Secret
         }
         
         int starting_from = charvals.IndexOf(inputSegment[0]);
-        int ending_at = letter_bookmarks.ContainsKey(charvals[starting_from + 1]) ? 1 : 2;
+        int ending_at = starting_from + 1;
+        while(!letter_bookmarks.ContainsKey(charvals[ending_at]) && ending_at < 26)
+        {
+            ending_at++;
+        }
         int index = letter_bookmarks[charvals[starting_from]];
         string? ret = null;
-        while (word_list.Count > index && (starting_from + 1 != 26 ? letter_bookmarks[charvals[starting_from + ending_at]] : word_list.Count) > index)
+        while (word_list.Count > index && (starting_from + 1 != 26 ? letter_bookmarks[charvals[ending_at]] : word_list.Count) > index)
         {
             if (word_list[index].StartsWith(inputSegment))
             {
